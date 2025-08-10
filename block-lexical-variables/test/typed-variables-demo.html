@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Blockly Typed Variables Demo</title>
+  <script src="https://unpkg.com/blockly@10.4.0/blockly_compressed.js"></script>
+  <script src="https://unpkg.com/blockly@10.4.0/blocks_compressed.js"></script>
+  <script src="https://unpkg.com/blockly@10.4.0/javascript_compressed.js"></script>
+  <script src="https://unpkg.com/blockly@10.4.0/msg/en.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    #blocklyDiv {
+      height: 480px;
+      width: 100%;
+    }
+    .controls {
+      margin: 10px 0;
+    }
+    .output {
+      background-color: #f5f5f5;
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin: 10px 0;
+      font-family: monospace;
+      white-space: pre-wrap;
+    }
+    .error {
+      color: red;
+    }
+    .success {
+      color: green;
+    }
+  </style>
+</head>
+<body>
+  <h1>Blockly Typed Variables Demo</h1>
+  <p>This demo shows the new statically typed variable support for C and TypeScript.</p>
+  
+  <div class="controls">
+    <label for="language">Target Language:</label>
+    <select id="language" onchange="changeLanguage()">
+      <option value="typescript">TypeScript</option>
+      <option value="c">C</option>
+      <option value="javascript">JavaScript</option>
+    </select>
+    
+    <button onclick="generateCode()">Generate Code</button>
+    <button onclick="checkTypes()">Check Types</button>
+    <button onclick="clearWorkspace()">Clear Workspace</button>
+  </div>
+
+  <div id="blocklyDiv"></div>
+  
+  <div class="output" id="output">Generated code will appear here...</div>
+  <div class="output" id="typeOutput">Type checking results will appear here...</div>
+
+  <script type="module">
+    import {LexicalVariablesPlugin} from '../src/index.js';
+    
+    // Initialize Blockly
+    const workspace = Blockly.inject('blocklyDiv', {
+      toolbox: {
+        kind: 'categoryToolbox',
+        contents: [
+          {
+            kind: 'category',
+            name: 'Typed Variables',
+            colour: 160,
+            contents: [
+              {
+                kind: 'block',
+                type: 'typed_global_declaration'
+              },
+              {
+                kind: 'block',
+                type: 'typed_local_declaration_statement'
+              },
+              {
+                kind: 'block',
+                type: 'typed_lexical_variable_get'
+              },
+              {
+                kind: 'block',
+                type: 'typed_lexical_variable_set'
+              }
+            ]
+          },
+          {
+            kind: 'category',
+            name: 'Logic',
+            colour: 210,
+            contents: [
+              {
+                kind: 'block',
+                type: 'logic_boolean'
+              },
+              {
+                kind: 'block',
+                type: 'logic_compare'
+              }
+            ]
+          },
+          {
+            kind: 'category',
+            name: 'Math',
+            colour: 230,
+            contents: [
+              {
+                kind: 'block',
+                type: 'math_number'
+              },
+              {
+                kind: 'block',
+                type: 'math_arithmetic'
+              }
+            ]
+          },
+          {
+            kind: 'category',
+            name: 'Text',
+            colour: 160,
+            contents: [
+              {
+                kind: 'block',
+                type: 'text'
+              }
+            ]
+          }
+        ]
+      },
+      scrollbars: true,
+      trashcan: true,
+      grid: {
+        spacing: 20,
+        length: 3,
+        colour: '#ccc',
+        snap: true
+      }
+    });
+
+    // Initialize the lexical variables plugin
+    LexicalVariablesPlugin.init(workspace);
+
+    // Create type manager
+    const typeManager = new LexicalVariablesPlugin.TypeManager(workspace);
+
+    // Global functions for the demo
+    window.generateCode = function() {
+      const language = document.getElementById('language').value;
+      let code = '';
+      
+      try {
+        if (language === 'typescript') {
+          code = Blockly.JavaScript.workspaceToCode(workspace);
+        } else if (language === 'c') {
+          // For C, we'll use JavaScript generator but format it as C
+          code = Blockly.JavaScript.workspaceToCode(workspace);
+          // Add C-specific formatting
+          code = `#include <stdio.h>\n#include <stdbool.h>\n\nint main() {\n${code}\n  return 0;\n}`;
+        } else {
+          code = Blockly.JavaScript.workspaceToCode(workspace);
+        }
+        
+        document.getElementById('output').textContent = code;
+        document.getElementById('output').className = 'output success';
+      } catch (error) {
+        document.getElementById('output').textContent = 'Error generating code: ' + error.message;
+        document.getElementById('output').className = 'output error';
+      }
+    };
+
+    window.checkTypes = function() {
+      try {
+        const errors = typeManager.checkTypeErrors();
+        if (errors.length === 0) {
+          document.getElementById('typeOutput').textContent = 'No type errors found!';
+          document.getElementById('typeOutput').className = 'output success';
+        } else {
+          let errorText = 'Type errors found:\n';
+          errors.forEach(error => {
+            errorText += `- ${error.message}\n`;
+          });
+          document.getElementById('typeOutput').textContent = errorText;
+          document.getElementById('typeOutput').className = 'output error';
+        }
+      } catch (error) {
+        document.getElementById('typeOutput').textContent = 'Error checking types: ' + error.message;
+        document.getElementById('typeOutput').className = 'output error';
+      }
+    };
+
+    window.clearWorkspace = function() {
+      workspace.clear();
+      typeManager.reset();
+      document.getElementById('output').textContent = 'Generated code will appear here...';
+      document.getElementById('output').className = 'output';
+      document.getElementById('typeOutput').textContent = 'Type checking results will appear here...';
+      document.getElementById('typeOutput').className = 'output';
+    };
+
+    window.changeLanguage = function() {
+      const language = document.getElementById('language').value;
+      // Update all type dropdowns in the workspace
+      const blocks = workspace.getAllBlocks(false);
+      blocks.forEach(block => {
+        if (block.type && block.type.startsWith('typed_')) {
+          const typeField = block.getField('TYPE');
+          if (typeField && typeField.setLanguage) {
+            typeField.setLanguage(language);
+          }
+        }
+      });
+    };
+
+    // Set up workspace change listener to update type manager
+    workspace.addChangeListener(function(event) {
+      if (event.type === Blockly.Events.BLOCK_CHANGE) {
+        // Recheck types when blocks change
+        setTimeout(() => {
+          if (window.checkTypes) {
+            window.checkTypes();
+          }
+        }, 100);
+      }
+    });
+  </script>
+</body>
+</html>

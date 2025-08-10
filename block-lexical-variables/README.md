@@ -27,10 +27,20 @@
 This plugin adds a set of [Blockly](https://www.npmjs.com/package/blockly) 
 blocks and fields that support lexical (aka local) variables, as well as a dynamic UI
 for obtaining variable and parameter getters and setters and for renaming variables.
-It  also updates the UI for existing blocks that are implicitly lexically scoped,
+It also updates the UI for existing blocks that are implicitly lexically scoped,
 i.e.:
 * Function/Procedure definitions
 * For loops
+
+**NEW: Statically Typed Variable Support**
+
+The plugin now includes support for statically typed variables, allowing you to:
+* Declare variables with specific types (number, string, boolean, etc.)
+* Generate type-safe code for C and TypeScript
+* Perform runtime type checking to catch type mismatches
+* Use type-compatible assignments and operations
+
+See [TYPED_VARIABLES.md](TYPED_VARIABLES.md) for detailed documentation on the typed variable features.
 
 For variable getter and setter blocks this
 plugin also provides dropdowns which allow the user to change the variable
@@ -54,6 +64,10 @@ If you want to define your own blocks that use the fields defined by this plugin
 ### Lexical/local variable declarations
 **Block type: 'local-declaration-statement'** - The variable name will be scoped to be valid
 within the body of the block.
+
+### Typed variable declarations
+**Block type: 'typed_local_declaration_statement'** - Declares a local variable with a specific type.
+**Block type: 'typed_global_declaration'** - Declares a global variable with a specific type.
 
 ![A picture of a lexical variable block](readme-media/lexvar.png "Lexical variable")
 
@@ -85,6 +99,10 @@ in scope for that getter according to which blocks it is within.
 
 ###Getter
 **Block type: 'lexical_variable_get'** - Exactly analogous to the setter block.
+
+### Typed variable getters and setters
+**Block type: 'typed_lexical_variable_get'** - Gets the value of a typed variable with type checking.
+**Block type: 'typed_lexical_variable_set'** - Sets the value of a typed variable with type checking.
 
 ![A picture of a getter block](readme-media/get.png "Getter")
 ![A picture of a getter block with a dropdown](readme-media/get-with-dropdown.png "Getter with dropdown")

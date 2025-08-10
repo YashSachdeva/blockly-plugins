@@ -15,6 +15,8 @@ import {FieldFlydown} from "./fields/field_flydown.js";
 import {FieldGlobalFlydown} from "./fields/field_global_flydown.js";
 import './fields/field_nocheck_dropdown.js';
 import {FieldLexicalVariable, LexicalVariable} from './fields/field_lexical_variable.js';
+import {FieldTypedLexicalVariable} from './fields/field_typed_lexical_variable.js';
+import {FieldTypeDropdown} from './fields/field_type_dropdown.js';
 import {FieldParameterFlydown} from './fields/field_parameter_flydown.js';
 import {FieldProcedureName} from './fields/field_procedurename.js';
 import {FieldNoCheckDropdown} from './fields/field_nocheck_dropdown.js';
@@ -24,7 +26,8 @@ import {Substitution} from './substitution.js';
 import './procedure_database.js';
 import * as Blockly from 'blockly/core';
 import {GerasRenderer} from './renderers/geras.js';
-import {lexicalVariableScopeMixin} from './mixins.js'
+import {lexicalVariableScopeMixin} from './mixins.js';
+import {TypeManager} from './typeManager.js';
 
 export class LexicalVariablesPlugin {
 
@@ -64,11 +67,14 @@ export class LexicalVariablesPlugin {
     static lexicalVariableScopeMixin= lexicalVariableScopeMixin;
     static LexicalVariable = LexicalVariable;
     static FieldLexicalVariable = FieldLexicalVariable;
+    static FieldTypedLexicalVariable = FieldTypedLexicalVariable;
+    static FieldTypeDropdown = FieldTypeDropdown;
     static FieldProcedureName = FieldProcedureName;
     static FieldNoCheckDropdown = FieldNoCheckDropdown;
     static NameSet = NameSet;
     static Shared = Shared;
     static Substitution = Substitution;
+    static TypeManager = TypeManager;
 }
 
 Blockly.blockRendering.register('geras2_renderer', GerasRenderer);

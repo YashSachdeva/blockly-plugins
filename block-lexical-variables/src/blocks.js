@@ -7,3 +7,4 @@ import './blocks/lexical-variables.js';
 import './blocks/controls.js';
 import './blocks/procedures.js';
 import './blocks/variable-get-set.js';
+import './blocks/typed-variables.js';

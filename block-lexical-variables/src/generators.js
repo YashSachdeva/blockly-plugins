@@ -8,3 +8,4 @@
 import './generators/lexical-variables.js';
 import './generators/controls.js';
 import './generators/procedures.js';
+import './generators/typed-variables.js';
